@@ -24,7 +24,6 @@ ARG DEFAULT_TERRAFORM_VERSION=1.7.2
 ARG DEFAULT_CONFTEST_VERSION=0.49.1
 
 # Stage 1: build artifact and download deps
-
 FROM golang:1.22.1-alpine AS builder
 
 ARG ATLANTIS_VERSION=dev
@@ -191,29 +190,29 @@ ENTRYPOINT ["docker-entrypoint.sh"]
 CMD ["server"]
 
 # Stage 2 - Debian
-FROM debian-base AS debian
+# FROM debian-base AS debian
 
-EXPOSE ${ATLANTIS_PORT:-4141}
+# EXPOSE ${ATLANTIS_PORT:-4141}
 
-HEALTHCHECK --interval=5m --timeout=3s \
-  CMD curl -f http://localhost:${ATLANTIS_PORT:-4141}/healthz || exit 1
+# HEALTHCHECK --interval=5m --timeout=3s \
+#   CMD curl -f http://localhost:${ATLANTIS_PORT:-4141}/healthz || exit 1
 
-# Set up the 'atlantis' user and adjust permissions
-RUN useradd --create-home --user-group --shell /bin/bash atlantis && \
-    chown atlantis:root /home/atlantis/ && \
-    chmod u+rwx /home/atlantis/
+# # Set up the 'atlantis' user and adjust permissions
+# RUN useradd --create-home --user-group --shell /bin/bash atlantis && \
+#     chown atlantis:root /home/atlantis/ && \
+#     chmod u+rwx /home/atlantis/
 
-# copy atlantis binary
-COPY --from=builder /app/atlantis /usr/local/bin/atlantis
-# copy terraform binaries
-COPY --from=deps /usr/local/bin/terraform* /usr/local/bin/
-# copy dependencies
-COPY --from=deps /usr/local/bin/conftest /usr/local/bin/conftest
-COPY --from=deps /usr/bin/git-lfs /usr/bin/git-lfs
-# copy docker-entrypoint.sh
-COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+# # copy atlantis binary
+# COPY --from=builder /app/atlantis /usr/local/bin/atlantis
+# # copy terraform binaries
+# COPY --from=deps /usr/local/bin/terraform* /usr/local/bin/
+# # copy dependencies
+# COPY --from=deps /usr/local/bin/conftest /usr/local/bin/conftest
+# COPY --from=deps /usr/bin/git-lfs /usr/bin/git-lfs
+# # copy docker-entrypoint.sh
+# COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 
-# Set the entry point to the atlantis user and run the atlantis command
-USER atlantis
-ENTRYPOINT ["docker-entrypoint.sh"]
-CMD ["server"]
+# # Set the entry point to the atlantis user and run the atlantis command
+# USER atlantis
+# ENTRYPOINT ["docker-entrypoint.sh"]
+# CMD ["server"]
